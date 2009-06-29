@@ -29,6 +29,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+
+
 ---------------
 -- Ada Works --
 ---------------
@@ -39,54 +41,56 @@ with Aw_Config;
 ---------
 with APQ;
 
-package APQ_Provider is
+package body APQ_Provider is
 
 
 	----------------------------
 	-- The Connection Factory --
 	----------------------------
 
-
-	
-	type Connection_Factory_Type is access function( Config : in Aw_Config.Config_File ) return APQ.Connection_Ptr;
-	-- it's the function used internally to create a new instance of a database.
-	--
-	-- not only memory allocation must be handled, but also the basic setup has to be performed.
-	
-
-	generic
-		type Connection_Type is new APQ.Root_Connection_Type with private;
-	function Generic_Connection_Factory( Config : in Aw_Config.Config_File ) return APQ.Connection_Ptr;
-	-- to easy things, a generic function for the main database properties is defined.
-	--
-	-- the user can also setup his own function, but a new instance of this one should be enough for every case.
+	function Generic_Connection_Factory( Config : in Aw_Config.Config_File ) return APQ.Connection_Ptr is
+		Conn : APQ.Connection_Ptr := null;
+	begin
+		return Conn;
+	end Generic_Connection_Factory;
 
 
 
-	-----------------------------
-	-- The Connection Instance --
-	-----------------------------
+	protected body Connection_Instance_Type is
+		procedure Run( Connection_Runner : in Connection_Runner_Type ) is
+		begin
+			Connection_Runner.all( My_Connection.all );
+		end Run;
 
-	type Connection_Runner_Type is not null access procedure( conn : in out APQ.Root_Connection_Type'Class );
-	-- this is a procedure that's called by the Instance.Run() procedure.
+		procedure Set_Connection( Connection : in APQ.Connection_Ptr ) is
+		begin
+			My_Connection := Connection;
+		end Set_Connection;
 
-	protected type Connection_Instance_Type is
-		-- the Connection Instance is the type that actually handles each connection individually.
-		--
-		-- it not only represents the connection, but is also responsible for loading and
-		-- connecting into the database backend.
-
-		procedure Run( Connection_Runner : in Connection_Runner_Type );
-		procedure Set_Connection( Connection : in APQ.Connection_Ptr );
-	
-	private
-		My_Connection : APQ.Connection_Ptr;
 	end Connection_Instance_Type;
 
-	protected type Connection_Provider_Type is 
-		procedure Get_Instance( Instance : in out Connection_Instance_Type );
-	private
-		My_Connection : APQ.Connection_Ptr;
+	protected body Connection_Provider_Type is 
+		procedure Get_Instance( Instance : in out Connection_Instance_Type ) is
+		begin
+			Instance.Set_Connection( My_Connection );
+		end Get_Instance;
 	end Connection_Provider_Type;
 
+	Prov : Connection_Provider_Type;
+	Inst : Connection_Instance_Type;
+
+
+	procedure My_Runner( Conn : in out APQ.Root_Connection_Type'Class ) is
+		Query : APQ.Root_Query_Type'Class := APQ.New_Query( Conn );
+	begin
+
+		APQ.Execute( Query, Conn );
+	end My_Runner;
+
+
+begin
+	Prov.Get_Instance( Inst );
+
+	Inst.Run( My_Runner'Access );
+	
 end APQ_Provider;

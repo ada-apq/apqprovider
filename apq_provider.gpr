@@ -7,8 +7,15 @@
 -- $Author: ogro $
 
 
+-- setup for the build system...
 with "adaworks_setup";
+
+
+-- database :)
 with "apq";
+
+-- configuration framework
+with "awconfig";
 
 project APQ_Provider is
 

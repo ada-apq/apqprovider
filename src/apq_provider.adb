@@ -61,23 +61,20 @@ package body APQ_Provider is
 		begin
 			Connection_Runner.all( My_Connection.all );
 		end Run;
-
-		procedure Set_Connection( Connection : in APQ.Connection_Ptr ) is
-		begin
-			My_Connection := Connection;
-		end Set_Connection;
-
 	end Connection_Instance_Type;
 
 	protected body Connection_Provider_Type is 
-		procedure Get_Instance( Instance : in out Connection_Instance_Type ) is
+
+
+
+		procedure Get_Instance( Instance : in out Connection_Instance_Ptr ) is
 		begin
-			Instance.Set_Connection( My_Connection );
+			Instance := new Connection_Instance_Type;
 		end Get_Instance;
 	end Connection_Provider_Type;
 
 	Prov : Connection_Provider_Type;
-	Inst : Connection_Instance_Type;
+	Inst : Connection_Instance_Ptr;
 
 
 	procedure My_Runner( Conn : in out APQ.Root_Connection_Type'Class ) is

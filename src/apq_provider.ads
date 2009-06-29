@@ -42,6 +42,14 @@ with APQ;
 package APQ_Provider is
 
 
+	----------------
+	-- Exceptions --
+	----------------
+
+	Out_Of_Instances : Exception;
+	-- when there is no more available instance
+
+
 	----------------------------
 	-- The Connection Factory --
 	----------------------------
@@ -76,16 +84,58 @@ package APQ_Provider is
 		-- it not only represents the connection, but is also responsible for loading and
 		-- connecting into the database backend.
 
+
 		procedure Run( Connection_Runner : in Connection_Runner_Type );
-		procedure Set_Connection( Connection : in APQ.Connection_Ptr );
+		-- make sure the connection is active and then run Connection_Runner
+		-- NOTE: if APQ.Not_Connected is raised inside the Connection_Runner procedure
+		-- tries to reconnect and call it again... if the exception is raised by the 2nd time,
+		-- it's reraised.
+
+
+		procedure Setup( Config : in Aw_Config.Config_File );
+		-- setup the database connection for this instance
 	
 	private
-		My_Connection : APQ.Connection_Ptr;
+		Keepalive	: Boolean;
+		-- should the connection be kept alive?
+	
+		My_Connection	: APQ.Connection_Ptr;
+		-- the connection :D
 	end Connection_Instance_Type;
 
+
+	type Connection_Instance_Ptr is access Connection_Instance_Type;
+	-- it's how we access the instances inside our code
+	-- note that the connection instance type is a protected type. :)
+	
+	type Connection_Instance_Information_Type is record
+		Instance : Connection_Instance_Ptr;
+		In_Use   : Boolean;
+	end record;
+	-- used internally by the connection provider type to control if the
+	-- instance is available or not.
+
+	type Connection_Instance_Information_Array_Type is array ( Positive range <> ) of Connection_Instance_Information_Type;
+	type Connection_Instance_Information_Array_Ptr is access Connection_Instance_Information_Array_Type;
+	-- these types are used inside the connection provider type
+
+
+
 	protected type Connection_Provider_Type is 
-		procedure Get_Instance( Instance : in out Connection_Instance_Type );
+		procedure Acquire_Instance( Instance : out Connection_Instance_Ptr );
+		-- get an instance, locking it.
+		-- if no unlocked instance is available, raise Out_Of_Instances
+
+		procedure Requease_Instance( Instance : in Connection_Instance_Ptr );
+		-- release an instance, unlocking it.
+
+
+		procedure Setup( Config : in Aw_Config.Config_File );
+		-- setup the connection provider and all it's instances.
+	
+
 	private
+		My_Instances : Connection_Instance_Information_Array_Ptr;
 		My_Connection : APQ.Connection_Ptr;
 	end Connection_Provider_Type;
 

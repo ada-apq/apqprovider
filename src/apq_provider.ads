@@ -98,8 +98,6 @@ package APQ_Provider is
 	-- The Connection Instance --
 	-----------------------------
 
-	type Connection_Runner_Type is not null access procedure( conn : in out APQ.Root_Connection_Type'Class );
-	-- this is a procedure that's called by the Instance.Run() procedure.
 
 	protected type Connection_Instance_Type is
 		-- the Connection Instance is the type that actually handles each connection individually.
@@ -108,7 +106,9 @@ package APQ_Provider is
 		-- connecting into the database backend.
 
 
-		procedure Run( Connection_Runner : in Connection_Runner_Type );
+		procedure Run(
+				Connection_Runner : not null access procedure( Connection : in out APQ.Root_Connection_Type'Class )
+			);
 		-- make sure the connection is active and then run Connection_Runner
 		-- NOTE: if APQ.Not_Connected is raised inside the Connection_Runner procedure
 		-- tries to reconnect and call it again... if the exception is raised by the 2nd time,
@@ -171,5 +171,19 @@ package APQ_Provider is
 		My_Instances	: Connection_Instance_Array_Ptr;
 		My_In_Use	: Boolean_Array_Ptr;
 	end Connection_Provider_Type;
+
+	type Connection_Provider_Ptr is access Connection_Provider_Type;
+
+
+	procedure Run(
+			Provider		: in out Connection_Provider_Type;
+			Connection_Runner	: not null access procedure( Connection : in out APQ.Root_Connection_Type'Class );
+			Queue_On_OOI		: in     Boolean := True
+		);
+
+	-- run the connection runner in an instance of the given provider.
+	-- if queue_on_OOI, tries to run while Out_Of_Instance exception keeps
+	-- getting raised
+
 
 end APQ_Provider;

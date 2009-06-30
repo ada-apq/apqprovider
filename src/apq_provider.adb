@@ -31,6 +31,11 @@
 
 
 
+--------------
+-- Ada 2005 --
+--------------
+with Ada.Exceptions;
+
 ---------------
 -- Ada Works --
 ---------------
@@ -181,8 +186,9 @@ package body APQ_Provider is
 		-- it not only represents the connection, but is also responsible for loading and
 		-- connecting into the database backend.
 
-
-		procedure Run( Connection_Runner : in Connection_Runner_Type ) is
+		procedure Run(
+				Connection_Runner : not null access procedure( Connection : in out APQ.Root_Connection_Type'Class )
+			) is
 			-- make sure the connection is active and then run Connection_Runner
 			-- NOTE: if APQ.Not_Connected is raised inside the Connection_Runner procedure
 			-- tries to reconnect and call it again... if the exception is raised by the 2nd time,
@@ -326,4 +332,34 @@ package body APQ_Provider is
 --	private
 --		My_Instances : Connection_Instance_Array_Ptr;
 	end Connection_Provider_Type;
+
+
+	procedure Run(
+			Provider		: in out Connection_Provider_Type;
+			Connection_Runner	: not null access procedure( Connection : in out APQ.Root_Connection_Type'Class );
+			Queue_On_OOI		: in     Boolean := True
+		) is
+		-- run the connection runner in an instance of the given provider.
+		-- if queue_on_OOI, tries to run while Out_Of_Instance exception keeps
+		-- getting raised
+
+		Instance : Connection_Instance_Ptr;
+	begin
+		loop
+			begin
+				Provider.Acquire_Instance( Instance );
+				Instance.Run( Connection_Runner );
+				Provider.Release_Instance( Instance );
+				exit;
+			exception
+				when E : Out_of_Instances =>
+					if not Queue_on_OOI then
+						Ada.Exceptions.Reraise_Occurrence( E );
+					end if;
+			end;
+		end loop;
+
+	end Run;
+
+
 end APQ_Provider;

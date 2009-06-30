@@ -356,6 +356,7 @@ package body APQ_Provider is
 					if not Queue_on_OOI then
 						Ada.Exceptions.Reraise_Occurrence( E );
 					end if;
+					delay 0.01;
 			end;
 		end loop;
 

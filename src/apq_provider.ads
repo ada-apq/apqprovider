@@ -33,6 +33,7 @@
 -- Ada Works --
 ---------------
 with Aw_Config;
+with Aw_Lib.Log;
 
 ---------
 -- APQ --
@@ -117,12 +118,21 @@ package APQ_Provider is
 		procedure Setup( Config : in Aw_Config.Config_File );
 		-- setup the database connection for this instance
 	
+
+		procedure Set_Id( Id : in Positive );
+		function Get_Id return Positive;
+		-- The ID is what the connection provider uses to control
+		-- if it's in use or no.
+
 	private
 		Keepalive	: Boolean;
 		-- should the connection be kept alive?
 	
 		My_Connection	: APQ.Connection_Ptr;
 		-- the connection :D
+
+
+		My_Id		: Positive;
 	end Connection_Instance_Type;
 
 
@@ -130,17 +140,14 @@ package APQ_Provider is
 	-- it's how we access the instances inside our code
 	-- note that the connection instance type is a protected type. :)
 	
-	type Connection_Instance_Information_Type is record
-		Instance : Connection_Instance_Ptr;
-		In_Use   : Boolean;
-	end record;
-	-- used internally by the connection provider type to control if the
-	-- instance is available or not.
-
-	type Connection_Instance_Information_Array_Type is array ( Positive range <> ) of Connection_Instance_Information_Type;
-	type Connection_Instance_Information_Array_Ptr is access Connection_Instance_Information_Array_Type;
+	type Connection_Instance_Array_Type is array ( Positive range <> ) of Connection_Instance_Ptr;
+	type Connection_Instance_Array_Ptr is access Connection_Instance_Array_Type;
 	-- these types are used inside the connection provider type
 
+
+	type Boolean_Array_Type is array( Positive range <> ) of Boolean;
+	type Boolean_Array_Ptr is access Boolean_Array_Type;
+	-- use to track used connection instance.
 
 	------------------------------
 	-- Connection Provider Type --
@@ -160,8 +167,9 @@ package APQ_Provider is
 	
 
 	private
-		My_Instances : Connection_Instance_Information_Array_Ptr;
-		My_Connection : APQ.Connection_Ptr;
+		Log_Level	: Aw_Lib.Log.Log_Level;
+		My_Instances	: Connection_Instance_Array_Ptr;
+		My_In_Use	: Boolean_Array_Ptr;
 	end Connection_Provider_Type;
 
 end APQ_Provider;

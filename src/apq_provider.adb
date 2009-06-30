@@ -35,6 +35,7 @@
 -- Ada Works --
 ---------------
 with Aw_Config;
+with Aw_Lib.Log;
 
 ---------
 -- APQ --
@@ -49,9 +50,99 @@ package body APQ_Provider is
 	----------------------------
 
 	function Generic_Connection_Factory( Config : in Aw_Config.Config_File ) return APQ.Connection_Ptr is
-		Conn : APQ.Connection_Ptr := null;
+		use APQ;
+		use Aw_Config;
+
+		Connection : APQ.Connection_Ptr := new Connection_Type;
+
+		function H( Key :in String ) return Boolean is
+		begin
+			return Has_Element( Config, Key );
+		end H;
 	begin
-		return Conn;
+		-- Case :: 
+		if H( "case" ) then
+			Set_Case(
+					Connection.All,
+					APQ.SQL_Case_Type'Value(
+						Element( Config, "case" )
+						)
+				);
+		end if;
+
+		-- Instance :: 
+		if H( "instance" ) then
+			Set_Instance(
+					C		=> Connection.All,
+					Instance	=> Element( Config, "instance" )
+				);
+		end if;
+
+		-- Host Name ::
+		if H( "host_name" ) then
+			Set_Host_Name(
+					C		=> Connection.All,
+					Host_Name	=> Element( Config, "host_name" )
+				);
+		end if;
+
+		-- Host Address ::
+		if H( "host_address" ) then
+			Set_Host_Address(
+					C		=> Connection.All,
+					Host_Address	=> Element( Config, "host_address" )
+				);
+		end if;
+
+		-- TCP Port ::
+		if H( "port" ) then
+			Set_Port(
+					C		=> Connection.All,
+					Port_Number	=> Element( Config, "port" )
+				);
+		end if;
+
+		-- Unix Port ::
+		if H( "unix_port" ) then
+			Set_Port(
+					C		=> Connection.all,
+					Port_Name	=> Element( Config, "unix_port" )
+				);
+		end if;
+
+		-- DB Name ::
+		if H( "db_name" ) then
+			Set_DB_Name(
+					C		=> Connection.all,
+					DB_Name		=> Element( Config, "db_name" )
+				);
+		end if;
+
+		-- User ::
+		if H( "user" ) then
+			Set_User(
+					C		=> Connection.all,
+					User		=> Element( Config, "user" )
+				);
+		end if;
+
+		-- Password ::
+		if H( "password" ) then
+			Set_Password(
+					C		=> Connection.all,
+					Password	=> Element( Config, "password" )
+				);
+		end if;
+
+		-- Rollback on Finalize ::
+		if H( "rollback_on_finalize" ) then
+			Set_Rollback_On_Finalize(
+					C		=> Connection.all,
+					Rollback	=> Element( Config, "rollback_on_finalize" )
+				);
+		end if;
+
+		return Connection;
 	end Generic_Connection_Factory;
 
 
@@ -139,6 +230,17 @@ package body APQ_Provider is
 
 			My_Connection := Factory_Registry.Get_Factory( Engine ).all( Config );
 		end Setup;
+
+
+		procedure Set_Id( Id : in Positive ) is
+		begin
+			My_Id := Id;
+		end Set_Id;
+
+		function Get_Id return Positive is
+		begin
+			return My_Id;
+		end Get_Id;
 	end Connection_Instance_Type;
 
 
@@ -153,15 +255,13 @@ package body APQ_Provider is
 			-- get an instance, locking it.
 			-- if no unlocked instance is available, raise Out_Of_Instances
 
-			Inst : Connection_Instance_Information_Type;
+			Inst : Connection_Instance_Type;
 		begin
 			-- TODO: change it to a random approach
 			for i in My_Instances'First .. My_Instances'Last loop
-				Inst := My_Instances( i );
-
-				if not Inst.In_Use then
-					Inst.In_Use := True;
-					Instance := Inst.Instance;
+				if not My_In_Use( i ) then
+					My_In_Use( i ) := True;
+					Instance := My_Instances( i );
 					return;
 				end if;
 			end loop;
@@ -174,18 +274,56 @@ package body APQ_Provider is
 		procedure Release_Instance( Instance : in Connection_Instance_Ptr ) is
 			-- release an instance, unlocking it.
 		begin
-			null;
-			-- TODO :: Instance.In_Use := False;
+			My_In_Use( Instance.Get_Id ) := False;
 		end Release_Instance;
 
 		procedure Setup( Config : in Aw_Config.Config_File ) is
-		-- setup the connection provider and all it's instances.
-		-- TODO THE SETUP PROCEDURE
+			My_Config : Aw_Config.Config_File := Config;
+
+			Engines : Aw_Config.Config_File_Array := Aw_Config.Elements_Array( Config, "apq_provider.engines" );
 		begin
-			null;
+			Aw_Config.Set_Section( My_Config, "apq_provider" );
+
+			declare
+				Log_Level_Str	: String := Aw_Config.Value( Config, "log_level", "nul" );
+				Engine_Cfgs	: Aw_Config.Config_File_Array :=
+							Aw_Config.Elements_Array( Config, "engines" );
+				Count		: Integer := 1;
+				Current_Length	: Integer;
+			begin
+
+				Log_Level := Aw_Lib.Log.Log_Level'Value( "Level_" & Log_Level_Str );
+				for i in Engine_Cfgs'First .. Engine_Cfgs'Last loop
+					Count := Count + Aw_Config.Value( Config, "slots", 1 );
+				end loop;
+
+				if Count = 1 then
+					raise CONSTRAINT_ERROR with "not enough engines in APQ_Provider Config " & Aw_Config.Get_File_Name( Config );
+				else
+					Count := Count - 1;
+				end if;
+
+				My_Instances := new Connection_Instance_Array_Type( 1 .. Count );
+				My_In_Use := new Boolean_Array_Type( 1 .. Count );
+				My_In_Use.all := ( others => FALSE );
+
+				-- now we initialize the engines..
+
+				Count := 1;
+				
+				for i in Engine_Cfgs'First .. Engine_Cfgs'Last loop
+					Current_Length := Aw_Config.Value( Config, "slots", 1 );
+
+					for i in 1 .. Current_Length loop
+						My_Instances( Count ) := new Connection_Instance_Type;
+						My_Instances( Count ).Setup( Engine_Cfgs( i ) );
+						Count := Count + 1; -- we compute the current count..
+					end loop;
+				end loop;
+			end;
 		end Setup;
 
 --	private
---		My_Instances : Connection_Instance_Information_Array_Ptr;
+--		My_Instances : Connection_Instance_Array_Ptr;
 	end Connection_Provider_Type;
 end APQ_Provider;

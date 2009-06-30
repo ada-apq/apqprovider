@@ -16,6 +16,7 @@ with "apq";
 
 -- configuration framework
 with "awconfig";
+with "awlib";
 
 project APQ_Provider is
 

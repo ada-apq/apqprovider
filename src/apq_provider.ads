@@ -142,13 +142,16 @@ package APQ_Provider is
 	-- these types are used inside the connection provider type
 
 
+	------------------------------
+	-- Connection Provider Type --
+	------------------------------
 
 	protected type Connection_Provider_Type is 
 		procedure Acquire_Instance( Instance : out Connection_Instance_Ptr );
 		-- get an instance, locking it.
 		-- if no unlocked instance is available, raise Out_Of_Instances
 
-		procedure Requease_Instance( Instance : in Connection_Instance_Ptr );
+		procedure Release_Instance( Instance : in Connection_Instance_Ptr );
 		-- release an instance, unlocking it.
 
 

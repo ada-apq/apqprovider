@@ -110,6 +110,7 @@ package body APQ_Provider is
 					APQ.Disconnect( My_Connection.all );
 				end if;
 			end Run;
+			use APQ;
 		begin
 			if My_Connection = NULL then
 				raise PROGRAM_ERROR with "you need to run setup first..";
@@ -136,39 +137,55 @@ package body APQ_Provider is
 					raise UNKNOWN_ENGINE with Engine_Str;
 			end;
 
-			My_Connection := Get_Factory( Engine ).all( Config );
+			My_Connection := Factory_Registry.Get_Factory( Engine ).all( Config );
 		end Setup;
 	end Connection_Instance_Type;
 
 
+	------------------------------
+	-- Connection Provider Type --
+	------------------------------
 
---- TODO :: FROM HERE 
 
 
 	protected body Connection_Provider_Type is 
+		procedure Acquire_Instance( Instance : out Connection_Instance_Ptr ) is
+			-- get an instance, locking it.
+			-- if no unlocked instance is available, raise Out_Of_Instances
 
-
-		procedure Get_Instance( Instance : in out Connection_Instance_Ptr ) is
+			Inst : Connection_Instance_Information_Type;
 		begin
-			Instance := new Connection_Instance_Type;
-		end Get_Instance;
+			-- TODO: change it to a random approach
+			for i in My_Instances'First .. My_Instances'Last loop
+				Inst := My_Instances( i );
+
+				if not Inst.In_Use then
+					Inst.In_Use := True;
+					Instance := Inst.Instance;
+					return;
+				end if;
+			end loop;
+
+			raise Out_Of_Instances with "no instance free to use at this moment..";
+		end Acquire_Instance;
+				
+
+
+		procedure Release_Instance( Instance : in Connection_Instance_Ptr ) is
+			-- release an instance, unlocking it.
+		begin
+			null;
+			-- TODO :: Instance.In_Use := False;
+		end Release_Instance;
+
+		procedure Setup( Config : in Aw_Config.Config_File ) is
+		-- setup the connection provider and all it's instances.
+		-- TODO THE SETUP PROCEDURE
+		begin
+			null;
+		end Setup;
+
+--	private
+--		My_Instances : Connection_Instance_Information_Array_Ptr;
 	end Connection_Provider_Type;
-
-	Prov : Connection_Provider_Type;
-	Inst : Connection_Instance_Ptr;
-
-
-	procedure My_Runner( Conn : in out APQ.Root_Connection_Type'Class ) is
-		Query : APQ.Root_Query_Type'Class := APQ.New_Query( Conn );
-	begin
-
-		APQ.Execute( Query, Conn );
-	end My_Runner;
-
-
-begin
-	Prov.Get_Instance( Inst );
-
-	Inst.Run( My_Runner'Access );
-	
 end APQ_Provider;

@@ -172,7 +172,7 @@ package APQ_Provider is
 		My_In_Use	: Boolean_Array_Ptr;
 	end Connection_Provider_Type;
 
-	type Connection_Provider_Ptr is access Connection_Provider_Type;
+	type Connection_Provider_Ptr is access all Connection_Provider_Type;
 
 
 	procedure Run(

@@ -286,14 +286,13 @@ package body APQ_Provider is
 		procedure Setup( Config : in Aw_Config.Config_File ) is
 			My_Config : Aw_Config.Config_File := Config;
 
-			Engines : Aw_Config.Config_File_Array := Aw_Config.Elements_Array( Config, "apq_provider.engines" );
 		begin
 			Aw_Config.Set_Section( My_Config, "apq_provider" );
 
 			declare
 				Log_Level_Str	: String := Aw_Config.Value( Config, "log_level", "nul" );
 				Engine_Cfgs	: Aw_Config.Config_File_Array :=
-							Aw_Config.Elements_Array( Config, "engines" );
+							Aw_Config.Elements_Array( Config, "apq_provider.engines" );
 				Count		: Integer := 1;
 				Current_Length	: Integer;
 			begin
@@ -323,6 +322,7 @@ package body APQ_Provider is
 					for i in 1 .. Current_Length loop
 						My_Instances( Count ) := new Connection_Instance_Type;
 						My_Instances( Count ).Setup( Engine_Cfgs( i ) );
+						My_Instances( Count ).Set_Id( Count );
 						Count := Count + 1; -- we compute the current count..
 					end loop;
 				end loop;

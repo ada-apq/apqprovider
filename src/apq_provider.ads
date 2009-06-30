@@ -46,6 +46,13 @@ package APQ_Provider is
 	-- Exceptions --
 	----------------
 
+	No_Factory : Exception;
+	-- when there is no driver registered for an engine
+	
+	Unknown_Engine : Exception;
+	-- when there is no know engine of such type.
+
+
 	Out_Of_Instances : Exception;
 	-- when there is no more available instance
 
@@ -68,6 +75,21 @@ package APQ_Provider is
 	-- to easy things, a generic function for the main database properties is defined.
 	--
 	-- the user can also setup his own function, but a new instance of this one should be enough for every case.
+
+	
+	type Connection_Factory_Array is array ( APQ.Database_Type'Range ) of Connection_Factory_Type;
+	
+	protected Factory_Registry is
+		procedure Register_Factory( Engine : in APQ.Database_Type; Factory : in Connection_Factory_Type );
+		-- set a factory..
+		-- if Factory = null, it's the same as "unsetting" it.
+
+		function Get_Factory( Engine : in APQ.Database_Type ) return Connection_Factory_Type;
+		-- get a factory.
+		-- if it's null, raise NO_FACTORY exception
+	private
+		Factories : Connection_Factory_Array;
+	end Factory_Registry;
 
 
 

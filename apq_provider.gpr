@@ -15,8 +15,8 @@ with "adaworks_setup";
 with "apq";
 
 -- configuration framework
-with "awconfig";
-with "awlib";
+with "kowconfig";
+with "kowlib";
 
 project APQ_Provider is
 

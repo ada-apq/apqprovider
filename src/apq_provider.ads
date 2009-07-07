@@ -32,8 +32,8 @@
 ---------------
 -- Ada Works --
 ---------------
-with Aw_Config;
-with Aw_Lib.Log;
+with KOW_Config;
+with KOW_Lib.Log;
 
 ---------
 -- APQ --
@@ -64,7 +64,7 @@ package APQ_Provider is
 
 
 	
-	type Connection_Factory_Type is access function( Config : in Aw_Config.Config_File ) return APQ.Connection_Ptr;
+	type Connection_Factory_Type is access function( Config : in KOW_Config.Config_File ) return APQ.Connection_Ptr;
 	-- it's the function used internally to create a new instance of a database.
 	--
 	-- not only memory allocation must be handled, but also the basic setup has to be performed.
@@ -72,7 +72,7 @@ package APQ_Provider is
 
 	generic
 		type Connection_Type is new APQ.Root_Connection_Type with private;
-	function Generic_Connection_Factory( Config : in Aw_Config.Config_File ) return APQ.Connection_Ptr;
+	function Generic_Connection_Factory( Config : in KOW_Config.Config_File ) return APQ.Connection_Ptr;
 	-- to easy things, a generic function for the main database properties is defined.
 	--
 	-- the user can also setup his own function, but a new instance of this one should be enough for every case.
@@ -115,7 +115,7 @@ package APQ_Provider is
 		-- it's reraised.
 
 
-		procedure Setup( Config : in Aw_Config.Config_File );
+		procedure Setup( Config : in KOW_Config.Config_File );
 		-- setup the database connection for this instance
 	
 
@@ -162,12 +162,12 @@ package APQ_Provider is
 		-- release an instance, unlocking it.
 
 
-		procedure Setup( Config : in Aw_Config.Config_File );
+		procedure Setup( Config : in KOW_Config.Config_File );
 		-- setup the connection provider and all it's instances.
 	
 
 	private
-		Log_Level	: Aw_Lib.Log.Log_Level;
+		Log_Level	: KOW_Lib.Log.Log_Level;
 		My_Instances	: Connection_Instance_Array_Ptr;
 		My_In_Use	: Boolean_Array_Ptr;
 	end Connection_Provider_Type;

@@ -39,8 +39,8 @@ with Ada.Exceptions;
 ---------------
 -- Ada Works --
 ---------------
-with Aw_Config;
-with Aw_Lib.Log;
+with KOW_Config;
+with KOW_Lib.Log;
 
 ---------
 -- APQ --
@@ -54,9 +54,9 @@ package body APQ_Provider is
 	-- The Connection Factory --
 	----------------------------
 
-	function Generic_Connection_Factory( Config : in Aw_Config.Config_File ) return APQ.Connection_Ptr is
+	function Generic_Connection_Factory( Config : in KOW_Config.Config_File ) return APQ.Connection_Ptr is
 		use APQ;
-		use Aw_Config;
+		use KOW_Config;
 
 		Connection : APQ.Connection_Ptr := new Connection_Type;
 
@@ -220,13 +220,13 @@ package body APQ_Provider is
 				Run;
 		end Run;
 
-		procedure Setup( Config : in Aw_Config.Config_File ) is
+		procedure Setup( Config : in KOW_Config.Config_File ) is
 			-- setup the database connection for this instance
 
 			Engine : APQ.Database_Type;
-			Engine_Str : String := Aw_Config.Element( Config, "engine" );
+			Engine_Str : String := KOW_Config.Element( Config, "engine" );
 		begin
-			Keepalive := Aw_Config.Value( Config, "keepalive", True );
+			Keepalive := KOW_Config.Value( Config, "keepalive", True );
 			begin
 				Engine := APQ.Database_Type'Value( "Engine_" & Engine_Str );
 			exception
@@ -283,27 +283,27 @@ package body APQ_Provider is
 			My_In_Use( Instance.Get_Id ) := False;
 		end Release_Instance;
 
-		procedure Setup( Config : in Aw_Config.Config_File ) is
-			My_Config : Aw_Config.Config_File := Config;
+		procedure Setup( Config : in KOW_Config.Config_File ) is
+			My_Config : KOW_Config.Config_File := Config;
 
 		begin
-			Aw_Config.Set_Section( My_Config, "apq_provider" );
+			KOW_Config.Set_Section( My_Config, "apq_provider" );
 
 			declare
-				Log_Level_Str	: String := Aw_Config.Value( Config, "log_level", "nul" );
-				Engine_Cfgs	: Aw_Config.Config_File_Array :=
-							Aw_Config.Elements_Array( Config, "apq_provider.engines" );
+				Log_Level_Str	: String := KOW_Config.Value( Config, "log_level", "nul" );
+				Engine_Cfgs	: KOW_Config.Config_File_Array :=
+							KOW_Config.Elements_Array( Config, "apq_provider.engines" );
 				Count		: Integer := 1;
 				Current_Length	: Integer;
 			begin
 
-				Log_Level := Aw_Lib.Log.Log_Level'Value( "Level_" & Log_Level_Str );
+				Log_Level := KOW_Lib.Log.Log_Level'Value( "Level_" & Log_Level_Str );
 				for i in Engine_Cfgs'First .. Engine_Cfgs'Last loop
-					Count := Count + Aw_Config.Value( Config, "slots", 1 );
+					Count := Count + KOW_Config.Value( Config, "slots", 1 );
 				end loop;
 
 				if Count = 1 then
-					raise CONSTRAINT_ERROR with "not enough engines in APQ_Provider Config " & Aw_Config.Get_File_Name( Config );
+					raise CONSTRAINT_ERROR with "not enough engines in APQ_Provider Config " & KOW_Config.Get_File_Name( Config );
 				else
 					Count := Count - 1;
 				end if;
@@ -317,7 +317,7 @@ package body APQ_Provider is
 				Count := 1;
 				
 				for i in Engine_Cfgs'First .. Engine_Cfgs'Last loop
-					Current_Length := Aw_Config.Value( Config, "slots", 1 );
+					Current_Length := KOW_Config.Value( Config, "slots", 1 );
 
 					for i in 1 .. Current_Length loop
 						My_Instances( Count ) := new Connection_Instance_Type;

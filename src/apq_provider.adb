@@ -357,6 +357,13 @@ package body APQ_Provider is
 						Ada.Exceptions.Reraise_Occurrence( E );
 					end if;
 					delay 0.01;
+				when E : others =>
+					begin
+						Provider.Release_Instance( Instance );
+					exception
+						when others => null;
+					end;
+					Ada.Exceptions.Reraise_Occurrence( E );
 			end;
 		end loop;
 

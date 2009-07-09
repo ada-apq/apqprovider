@@ -170,6 +170,7 @@ package APQ_Provider is
 		Log_Level	: KOW_Lib.Log.Log_Level;
 		My_Instances	: Connection_Instance_Array_Ptr;
 		My_In_Use	: Boolean_Array_Ptr;
+		Last_Acquired	: Positive := 1;
 	end Connection_Provider_Type;
 
 	type Connection_Provider_Ptr is access all Connection_Provider_Type;

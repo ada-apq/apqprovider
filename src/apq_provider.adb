@@ -49,6 +49,24 @@ with APQ;
 
 package body APQ_Provider is
 
+	---------
+	-- Log --
+	---------
+
+	Logger : KOW_Lib.Log.Logger_Type := 
+			KOW_Lib.Log.Get_Logger( "APQ_Provider" );
+	
+	procedure Log(
+			Message : in String;
+			Level : KOW_Lib.Log.Log_Level := KOW_lib.Log.Level_Info
+		) is
+	begin
+		KOW_lib.Log.Log(
+				Logger	=> Logger,
+				Level	=> Level,
+				Message	=> Message
+			);
+	end Log;
 
 	----------------------------
 	-- The Connection Factory --
@@ -262,12 +280,22 @@ package body APQ_Provider is
 			-- if no unlocked instance is available, raise Out_Of_Instances
 
 			Inst : Connection_Instance_Type;
+			i    : Positive;
 		begin
 			-- TODO: change it to a random approach
-			for i in My_Instances'First .. My_Instances'Last loop
+			for j in My_Instances'First .. My_Instances'Last loop
+				
+				i := j + Last_Acquired;
+				if i > My_Instances'Last then
+					i := My_Instances'First;
+				end if;
+
+				Log( "Trying instance #" & Positive'Image( i ) & " of " & Positive'Image( My_Instances'Length ), KOW_Lib.Log.Level_Debug );
 				if not My_In_Use( i ) then
+					Log( "Instance acquired", KOW_Lib.Log.Level_Debug );
 					My_In_Use( i ) := True;
 					Instance := My_Instances( i );
+					Last_Acquired := i;
 					return;
 				end if;
 			end loop;
@@ -299,7 +327,7 @@ package body APQ_Provider is
 
 				Log_Level := KOW_Lib.Log.Log_Level'Value( "Level_" & Log_Level_Str );
 				for i in Engine_Cfgs'First .. Engine_Cfgs'Last loop
-					Count := Count + KOW_Config.Value( Config, "slots", 1 );
+					Count := Count + KOW_Config.Value( Engine_Cfgs( i ), "slots", 1 );
 				end loop;
 
 				if Count = 1 then
@@ -317,9 +345,10 @@ package body APQ_Provider is
 				Count := 1;
 				
 				for i in Engine_Cfgs'First .. Engine_Cfgs'Last loop
-					Current_Length := KOW_Config.Value( Config, "slots", 1 );
+					Current_Length := KOW_Config.Value( Engine_Cfgs( i ), "slots", 1 );
 
-					for i in 1 .. Current_Length loop
+					for j in 1 .. Current_Length loop
+						Log( "Setting up instance #" & Positive'Image( Count ) );
 						My_Instances( Count ) := new Connection_Instance_Type;
 						My_Instances( Count ).Setup( Engine_Cfgs( i ) );
 						My_Instances( Count ).Set_Id( Count );
@@ -356,6 +385,7 @@ package body APQ_Provider is
 					if not Queue_on_OOI then
 						Ada.Exceptions.Reraise_Occurrence( E );
 					end if;
+					log( "Delayed..." );
 					delay 0.01;
 				when E : others =>
 					begin

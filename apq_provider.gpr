@@ -8,7 +8,7 @@
 
 
 -- setup for the build system...
-with "adaworks_setup";
+with "kow_framework_setup";
 
 
 -- database :)
@@ -29,7 +29,7 @@ project APQ_Provider is
 	for Library_Dir use "lib";
 	for Library_Name use "apq_provider";
 	for Library_Version use "libapq_provider.so." & Version;
-	for Library_Kind use AdaWorks_Setup'Library_Kind;
+	for Library_Kind use kow_framework_Setup'Library_Kind;
 	
 	
 	package Compiler is

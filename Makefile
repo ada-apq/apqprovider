@@ -20,6 +20,7 @@ all: libs
 
 
 libs:
+	gnatprep "-Dversion=\"$(version)\"" ${projectFile}{.in,}
 	VERSION=$(VERSION) gnatmake -P ${projectFile}
 
 

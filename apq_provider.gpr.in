@@ -20,7 +20,7 @@ with "kowlib";
 
 project APQ_Provider is
 
-	version := External( "VERSION" );
+	version := $version;
 	--"0.1.0";
 	
 	for Source_Dirs use ( "src" );

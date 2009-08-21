@@ -16,11 +16,11 @@ GPR_PREFIX=$(LIB_PREFIX)/gnat
 projectFile="apq_provider.gpr"
 
 
-all: libs gprfile
+all: libs 
 
 
 libs:
-	gnatmake -P ${projectFile}
+	VERSION=$(VERSION) gnatmake -P ${projectFile}
 
 
 clean: gprclean
@@ -43,7 +43,7 @@ gprclean:
 	@rm -f gpr/*.def
 
 
-install:
+install: gprfile
 	@echo "Installing files"
 	install -d $(INCLUDE_PREFIX)
 	install -d $(LIB_PREFIX)
@@ -51,4 +51,5 @@ install:
 	install src*/* -t $(INCLUDE_PREFIX)
 	install lib/* -t $(LIB_PREFIX)
 	install gpr/*.gpr -t $(GPR_PREFIX)
+	make gprclean
 

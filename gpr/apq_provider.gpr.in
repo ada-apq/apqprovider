@@ -20,7 +20,7 @@ with "kowlib";
 
 project APQ_Provider is
 
-	version	:= "0.1.0";
+	version	:= $version;
 	prefix	:= $prefix;
 	
 	for Source_Dirs use ( prefix & "/include" );

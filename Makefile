@@ -7,7 +7,7 @@ VERSION=0.1.0
 ifndef ($(PREFIX))
 	PREFIX=/usr/local
 endif
-INCLUDE_PREFIX=$(PREFIX)/include
+INCLUDE_PREFIX=$(PREFIX)/include/apqprovider
 LIB_PREFIX=$(PREFIX)/lib
 GPR_PREFIX=$(LIB_PREFIX)/gnat
 

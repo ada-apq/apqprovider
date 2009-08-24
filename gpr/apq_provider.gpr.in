@@ -7,10 +7,6 @@
 -- $Author: ogro $
 
 
--- setup for the build system...
-with "kow_framework_setup";
-
-
 -- database :)
 with "apq";
 
@@ -29,7 +25,7 @@ project APQ_Provider is
 	for Library_Dir use $lib_path;
 	for Library_Name use "apq_provider";
 	for Library_Version use "libapq_provider.so." & Version;
-	for Library_Kind use kow_framework_Setup'Library_Kind;
+	for Library_Kind use kowlib'Library_Kind;
 	for Externally_Built use "true";
 	
 	

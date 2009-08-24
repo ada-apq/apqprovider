@@ -4,6 +4,7 @@
 
 PROJECT_FILES=apq_provider.gpr
 GPR_FILES=apq_provider.gpr
+INCLUDE_FILES=src/*
 
 
 

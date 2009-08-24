@@ -23,10 +23,10 @@ project APQ_Provider is
 	version	:= $version;
 	
 	
-	for Source_Dirs use ( $include_prefix );
+	for Source_Dirs use ( $include_path );
 	
 	-- LIBRARY
-	for Library_Dir use $lib_prefix;
+	for Library_Dir use $lib_path;
 	for Library_Name use "apq_provider";
 	for Library_Version use "libapq_provider.so." & Version;
 	for Library_Kind use kow_framework_Setup'Library_Kind;

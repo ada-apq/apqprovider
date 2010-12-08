@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 S p e c                                  --
 --                                                                          --
---                  Copyright (C) 2009 Ada Works Project                    --
+--            Copyright (C) 2009 .. 2011 KOW Framework Project              --
 --                                                                          --
 --                                                                          --
 -- APQ is free software;  you can  redistribute it  and/or modify it under  --
@@ -29,9 +29,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
----------------
--- Ada Works --
----------------
+-------------------
+-- KOW Framework --
+-------------------
 with KOW_Config;
 with KOW_Lib.Log;
 

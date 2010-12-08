@@ -36,9 +36,9 @@
 --------------
 with Ada.Exceptions;
 
----------------
--- Ada Works --
----------------
+-------------------
+-- KOW Framework --
+-------------------
 with KOW_Config;
 with KOW_Lib.Log;
 

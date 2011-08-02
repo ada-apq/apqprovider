@@ -283,11 +283,11 @@ package body APQ_Provider is
 			i    : Integer := Last_Acquired + 1;
 		begin
 
+			if i > My_Instances'Last then
+				i := My_Instances'First;
+			end if;
+
 			while i /= Last_Acquired loop
-				if i > My_Instances'Last then
-					i := My_Instances'First;
-				end if;
-				
 				Log( "Trying instance #" & Positive'Image( i ) & " of " & Positive'Image( My_Instances'Length ), KOW_Lib.Log.Level_Debug );
 				if not My_In_Use( i ) then
 					Log( "Instance acquired", KOW_Lib.Log.Level_Debug );
@@ -295,6 +295,12 @@ package body APQ_Provider is
 					Instance := My_Instances( i );
 					Last_Acquired := i;
 					return;
+				else
+					if i = My_Instances'Last then
+						i := My_Instances'First;
+					else
+						i := i + 1;
+					end if;
 				end if;
 			end loop;
 
@@ -380,11 +386,12 @@ package body APQ_Provider is
 				exit;
 			exception
 				when E : Out_of_Instances =>
+					Log( "All instances in use! If you get this message a lot, upgrade your DB structure", KOW_Lib.Log.Level_Error );
 					if not Queue_on_OOI then
 						Ada.Exceptions.Reraise_Occurrence( E );
 					end if;
-					log( "Delayed..." );
 					delay 0.01;
+					Log( "Delay ok..." );
 				when E : others =>
 					begin
 						Provider.Release_Instance( Instance );

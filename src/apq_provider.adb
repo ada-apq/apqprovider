@@ -391,7 +391,9 @@ package body APQ_Provider is
 					begin
 						Provider.Release_Instance( Instance );
 					exception
-						when others => null;
+						when others =>
+							Log( "Error release APQ Provider instance.", KOW_Lib.Log.Level_Error );
+							exit;
 					end;
 					Ada.Exceptions.Reraise_Occurrence( E );
 			end;

@@ -280,16 +280,14 @@ package body APQ_Provider is
 			-- if no unlocked instance is available, raise Out_Of_Instances
 
 			Inst : Connection_Instance_Type;
-			i    : Positive;
+			i    : Integer := Last_Acquired + 1;
 		begin
-			-- TODO: change it to a random approach
-			for j in My_Instances'First .. My_Instances'Last loop
-				
-				i := j + Last_Acquired;
+
+			while i /= Last_Acquired loop
 				if i > My_Instances'Last then
 					i := My_Instances'First;
 				end if;
-
+				
 				Log( "Trying instance #" & Positive'Image( i ) & " of " & Positive'Image( My_Instances'Length ), KOW_Lib.Log.Level_Debug );
 				if not My_In_Use( i ) then
 					Log( "Instance acquired", KOW_Lib.Log.Level_Debug );

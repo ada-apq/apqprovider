@@ -1,16 +1,22 @@
-# Makefile for the APQ_Provider
+# Makefile for the KOW Generic Library Framework
 #
 # @author Marcelo Coraça de Freitas <marcelo@kow.com.br> 
-
-PROJECT_FILES=apq_provider.gpr
-GPR_FILES=apq_provider.gpr
-INCLUDE_FILES=src/*
-
+#
+#
+# Please, read Makefile.include for more information
 
 
-include Makefile.include
+all:
+	./scripts/build.sh
 
+install:
+	./scripts/install.sh
 
-pre_libs:
-pos_libs:
-extra_clean:
+uninstall:
+	./scripts/uninstall.sh
+clean:
+	./scripts/clean.sh
+
+distclean: 
+	@-${MAKE} clean
+	@-${MAKE} -C samples clean

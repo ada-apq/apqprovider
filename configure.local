@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# 
+# Local configuration file for KOW Lib
+
+
+
+project="apqprovider"
+
+check_project apq
+
+set_configuration APQPROVIDER_EXTERNALLY_BUILT "false"

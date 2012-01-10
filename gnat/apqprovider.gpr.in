@@ -10,6 +10,8 @@
 
 
 with "apq";
+with "kowlib";
+with "kowconfig";
 
 project APQPROVIDER is
 

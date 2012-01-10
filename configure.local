@@ -7,5 +7,7 @@
 project="apqprovider"
 
 check_project apq
+check_project kowlib
+check_project kowconfig
 
 set_configuration APQPROVIDER_EXTERNALLY_BUILT "false"

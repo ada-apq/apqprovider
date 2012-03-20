@@ -40,6 +40,8 @@ with Ada.Exceptions;
 -- KOW Framework --
 -------------------
 with KOW_Config;
+with KOW_Config.Generic_Util;
+with KOW_Config.Util;
 with KOW_Lib.Log;
 
 ---------
@@ -72,7 +74,7 @@ package body APQ_Provider is
 	-- The Connection Factory --
 	----------------------------
 
-	function Generic_Connection_Factory( Config : in KOW_Config.Config_File ) return APQ.Connection_Ptr is
+	function Generic_Connection_Factory( Config : in KOW_Config.Config_File_Type ) return APQ.Connection_Ptr is
 		use APQ;
 		use KOW_Config;
 
@@ -80,7 +82,7 @@ package body APQ_Provider is
 
 		function H( Key :in String ) return Boolean is
 		begin
-			return Has_Element( Config, Key );
+			return Contains( Config, Key );
 		end H;
 	begin
 		-- Case :: 
@@ -121,7 +123,7 @@ package body APQ_Provider is
 		if H( "port" ) then
 			Set_Port(
 					C		=> Connection.All,
-					Port_Number	=> Element( Config, "port" )
+					Port_Number	=> Util.Integers.Default_Value( Config, "port" )
 				);
 		end if;
 
@@ -161,7 +163,7 @@ package body APQ_Provider is
 		if H( "rollback_on_finalize" ) then
 			Set_Rollback_On_Finalize(
 					C		=> Connection.all,
-					Rollback	=> Element( Config, "rollback_on_finalize" )
+					Rollback	=> Util.Booleans.Default_Value( Config, "rollback_on_finalize" )
 				);
 		end if;
 
@@ -238,13 +240,13 @@ package body APQ_Provider is
 				Run;
 		end Run;
 
-		procedure Setup( Config : in KOW_Config.Config_File ) is
+		procedure Setup( Config : in KOW_Config.Config_File_Type ) is
 			-- setup the database connection for this instance
 
 			Engine : APQ.Database_Type;
 			Engine_Str : String := KOW_Config.Element( Config, "engine" );
 		begin
-			Keepalive := KOW_Config.Value( Config, "keepalive", True );
+			Keepalive := KOW_Config.Util.Booleans.Default_Value( Config, "keepalive", True );
 			begin
 				Engine := APQ.Database_Type'Value( "Engine_" & Engine_Str );
 			exception
@@ -315,23 +317,33 @@ package body APQ_Provider is
 			My_In_Use( Instance.Get_Id ) := False;
 		end Release_Instance;
 
-		procedure Setup( Config : in KOW_Config.Config_File ) is
-			My_Config : KOW_Config.Config_File := Config;
+		procedure Setup( Config : in KOW_Config.Config_File_Type ) is
+			My_Config : KOW_Config.Config_File_Type := Config;
 
 		begin
 			KOW_Config.Set_Section( My_Config, "apq_provider" );
 
 			declare
-				Log_Level_Str	: String := KOW_Config.Value( Config, "log_level", "nul" );
+
+				function From_String( Str : in String ) return KOW_Lib.Log.Log_Level is
+				begin
+					return KOW_Lib.Log.Log_Level'Value( "Level_" & Str );
+				end From_String;
+
+				package Log_Level_Util is new KOW_Config.Generic_Util(
+											Element_Type	=> KOW_Lib.Log.Log_Level,
+											From_String	=> From_String,
+											To_String	=> KOW_Lib.Log.Log_Level'Image -- it's actually wrong but it's not used here
+										);
 				Engine_Cfgs	: KOW_Config.Config_File_Array :=
 							KOW_Config.Elements_Array( Config, "apq_provider.engines" );
 				Count		: Integer := 1;
 				Current_Length	: Integer;
 			begin
 
-				Log_Level := KOW_Lib.Log.Log_Level'Value( "Level_" & Log_Level_Str );
+				Log_Level := Log_Level_Util.Default_Value( Config, "log_level", KOW_Lib.Log.Level_Nul );
 				for i in Engine_Cfgs'First .. Engine_Cfgs'Last loop
-					Count := Count + KOW_Config.Value( Engine_Cfgs( i ), "slots", 1 );
+					Count := Count + KOW_Config.Util.Integers.Default_Value( Engine_Cfgs( i ), "slots", 1 );
 				end loop;
 
 				if Count = 1 then
@@ -349,7 +361,7 @@ package body APQ_Provider is
 				Count := 1;
 				
 				for i in Engine_Cfgs'First .. Engine_Cfgs'Last loop
-					Current_Length := KOW_Config.Value( Engine_Cfgs( i ), "slots", 1 );
+					Current_Length := KOW_Config.Util.Integers.Default_Value( Engine_Cfgs( i ), "slots", 1 );
 
 					for j in 1 .. Current_Length loop
 						Log( "Setting up instance #" & Positive'Image( Count ) );

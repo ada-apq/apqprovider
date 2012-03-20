@@ -64,7 +64,7 @@ package APQ_Provider is
 
 
 	
-	type Connection_Factory_Type is access function( Config : in KOW_Config.Config_File ) return APQ.Connection_Ptr;
+	type Connection_Factory_Type is access function( Config : in KOW_Config.Config_File_Type ) return APQ.Connection_Ptr;
 	-- it's the function used internally to create a new instance of a database.
 	--
 	-- not only memory allocation must be handled, but also the basic setup has to be performed.
@@ -72,7 +72,7 @@ package APQ_Provider is
 
 	generic
 		type Connection_Type is new APQ.Root_Connection_Type with private;
-	function Generic_Connection_Factory( Config : in KOW_Config.Config_File ) return APQ.Connection_Ptr;
+	function Generic_Connection_Factory( Config : in KOW_Config.Config_File_Type ) return APQ.Connection_Ptr;
 	-- to easy things, a generic function for the main database properties is defined.
 	--
 	-- the user can also setup his own function, but a new instance of this one should be enough for every case.
@@ -115,7 +115,7 @@ package APQ_Provider is
 		-- it's reraised.
 
 
-		procedure Setup( Config : in KOW_Config.Config_File );
+		procedure Setup( Config : in KOW_Config.Config_File_Type );
 		-- setup the database connection for this instance
 	
 
@@ -162,7 +162,7 @@ package APQ_Provider is
 		-- release an instance, unlocking it.
 
 
-		procedure Setup( Config : in KOW_Config.Config_File );
+		procedure Setup( Config : in KOW_Config.Config_File_Type );
 		-- setup the connection provider and all it's instances.
 	
 

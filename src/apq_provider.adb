@@ -90,7 +90,7 @@ package body APQ_Provider is
 			Set_Case(
 					Connection.All,
 					APQ.SQL_Case_Type'Value(
-						Element( Config, "case" )
+						Default_Value( Config, "case" )
 						)
 				);
 		end if;
@@ -99,7 +99,7 @@ package body APQ_Provider is
 		if H( "instance" ) then
 			Set_Instance(
 					C		=> Connection.All,
-					Instance	=> Element( Config, "instance" )
+					Instance	=> Default_Value( Config, "instance" )
 				);
 		end if;
 
@@ -107,7 +107,7 @@ package body APQ_Provider is
 		if H( "host_name" ) then
 			Set_Host_Name(
 					C		=> Connection.All,
-					Host_Name	=> Element( Config, "host_name" )
+					Host_Name	=> Default_Value( Config, "host_name" )
 				);
 		end if;
 
@@ -115,7 +115,7 @@ package body APQ_Provider is
 		if H( "host_address" ) then
 			Set_Host_Address(
 					C		=> Connection.All,
-					Host_Address	=> Element( Config, "host_address" )
+					Host_Address	=> Default_Value( Config, "host_address" )
 				);
 		end if;
 
@@ -131,7 +131,7 @@ package body APQ_Provider is
 		if H( "unix_port" ) then
 			Set_Port(
 					C		=> Connection.all,
-					Port_Name	=> Element( Config, "unix_port" )
+					Port_Name	=> Default_Value( Config, "unix_port" )
 				);
 		end if;
 
@@ -139,7 +139,7 @@ package body APQ_Provider is
 		if H( "db_name" ) then
 			Set_DB_Name(
 					C		=> Connection.all,
-					DB_Name		=> Element( Config, "db_name" )
+					DB_Name		=> Default_Value( Config, "db_name" )
 				);
 		end if;
 
@@ -147,7 +147,7 @@ package body APQ_Provider is
 		if H( "user" ) then
 			Set_User(
 					C		=> Connection.all,
-					User		=> Element( Config, "user" )
+					User		=> Default_Value( Config, "user" )
 				);
 		end if;
 
@@ -155,7 +155,7 @@ package body APQ_Provider is
 		if H( "password" ) then
 			Set_Password(
 					C		=> Connection.all,
-					Password	=> Element( Config, "password" )
+					Password	=> Default_Value( Config, "password" )
 				);
 		end if;
 
@@ -244,7 +244,7 @@ package body APQ_Provider is
 			-- setup the database connection for this instance
 
 			Engine : APQ.Database_Type;
-			Engine_Str : String := KOW_Config.Element( Config, "engine" );
+			Engine_Str : String := KOW_Config.Default_Value( Config, "engine" );
 		begin
 			Keepalive := KOW_Config.Util.Booleans.Default_Value( Config, "keepalive", True );
 			begin
@@ -336,7 +336,7 @@ package body APQ_Provider is
 											To_String	=> KOW_Lib.Log.Log_Level'Image -- it's actually wrong but it's not used here
 										);
 				Engine_Cfgs	: KOW_Config.Config_File_Array :=
-							KOW_Config.Elements_Array( Config, "apq_provider.engines" );
+							KOW_Config.Extract_Array( Config, "apq_provider.engines" );
 				Count		: Integer := 1;
 				Current_Length	: Integer;
 			begin

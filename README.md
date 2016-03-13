@@ -22,4 +22,9 @@ This repository contains only the core functionality; specific
 implementations are provided in the same way APQ implementations
 are.
 
+Notice, however, those packages are still on bitbucket:
 
+
+* [APQProvider - ct\_lib](https://bitbucket.org/kowframework/apqprovider-ct_lib)
+* [APQProvider - MySQL](https://bitbucket.org/kowframework/apqprovider-mysql)
+* [APQProvider - PostgreSQL](https://bitbucket.org/kowframework/apqprovider-postgresql)
